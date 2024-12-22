@@ -13,7 +13,8 @@ import {
   MenuItem,
   FormControl,
   Select,
-  InputLabel
+  InputLabel,
+  Snackbar
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -53,7 +54,7 @@ const StudentList = () => {
       const response = await execute(studentApi.getAll);
       setStudents(response.data || []);
     } catch (err) {
-      showNotification('Öğrenciler yüklenirken hata oluştu', 'error');
+      showNotification('Öğrenci listesi yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.', 'error');
     }
   };
 
@@ -75,13 +76,14 @@ const StudentList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Bu öğrenciyi silmek istediğinizden emin misiniz?')) {
+    const studentToDelete = students.find(s => s.id === id);
+    if (window.confirm(`${studentToDelete.firstName} ${studentToDelete.lastName} isimli öğrenciyi silmek istediğinizden emin misiniz?`)) {
       try {
         await execute(studentApi.delete, id);
-        showNotification('Öğrenci başarıyla silindi');
+        showNotification(`${studentToDelete.firstName} ${studentToDelete.lastName} başarıyla silindi.`, 'success');
         loadStudents();
       } catch (err) {
-        showNotification('Silme işlemi başarısız oldu', 'error');
+        showNotification('Silme işlemi başarısız oldu. Lütfen daha sonra tekrar deneyin.', 'error');
       }
     }
   };
@@ -146,7 +148,16 @@ const StudentList = () => {
       )}
 
       {error && (
-        <Alert severity="error" sx={{ mb: 4 }}>
+        <Alert 
+          severity="error" 
+          sx={{ 
+            mb: 4,
+            '& .MuiAlert-message': {
+              fontSize: '0.95rem'
+            }
+          }}
+          onClose={() => {/* Add error clearing logic if needed */}}
+        >
           {error}
         </Alert>
       )}

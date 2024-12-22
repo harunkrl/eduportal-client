@@ -41,7 +41,7 @@ const InstructorList = () => {
       const response = await execute(instructorApi.getAll);
       setInstructors(response.data || []);
     } catch (err) {
-      showNotification('Akademisyenler yüklenirken hata oluştu', 'error');
+      showNotification('Akademisyenler yüklenirken bir hata oluştu.', 'error', 4000);
     }
   };
 
@@ -55,13 +55,27 @@ const InstructorList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Bu akademisyeni silmek istediğinizden emin misiniz?')) {
+    const instructorToDelete = instructors.find(i => i.id === id);
+    if (window.confirm(
+      `${instructorToDelete.firstName} ${instructorToDelete.lastName} isimli akademisyeni silmek istediğinizden emin misiniz?`
+    )) {
       try {
         await execute(instructorApi.delete, id);
-        showNotification('Akademisyen başarıyla silindi');
+        showNotification(
+          `${instructorToDelete.firstName} ${instructorToDelete.lastName} başarıyla silindi.`,
+          'success'
+        );
         loadInstructors();
       } catch (err) {
-        showNotification('Silme işlemi başarısız oldu', 'error');
+        if (err.response?.status === 400) {
+          showNotification(
+            'Bu akademisyenin aktif dersleri bulunmaktadır. Silmeden önce dersleri başka akademisyenlere atayın.',
+            'warning',
+            6000
+          );
+        } else {
+          showNotification('Silme işlemi sırasında bir hata oluştu.', 'error', 4000);
+        }
       }
     }
   };

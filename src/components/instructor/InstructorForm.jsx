@@ -47,7 +47,7 @@ const InstructorForm = () => {
       const response = await execute(instructorApi.getById, id);
       setFormData(response.data);
     } catch (err) {
-      showNotification('Akademisyen bilgileri yüklenemedi', 'error');
+      showNotification('Akademisyen bilgileri yüklenirken bir hata oluştu.', 'error', 4000);
       navigate('/instructors');
     }
   };
@@ -88,19 +88,29 @@ const InstructorForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      showNotification('Lütfen tüm zorunlu alanları doldurun.', 'warning', 4000);
+      return;
+    }
 
     try {
       if (id) {
         await execute(instructorApi.update, id, formData);
-        showNotification('Akademisyen başarıyla güncellendi');
+        showNotification(
+          `${formData.firstName} ${formData.lastName} bilgileri başarıyla güncellendi.`,
+          'success'
+        );
       } else {
         await execute(instructorApi.create, formData);
-        showNotification('Akademisyen başarıyla oluşturuldu');
+        showNotification(
+          `${formData.firstName} ${formData.lastName} başarıyla eklendi.`,
+          'success'
+        );
       }
       navigate('/instructors');
     } catch (err) {
-      showNotification('İşlem başarısız oldu', 'error');
+      const errorMessage = err.response?.data?.message || 'İşlem sırasında bir hata oluştu.';
+      showNotification(errorMessage, 'error', 4000);
     }
   };
 

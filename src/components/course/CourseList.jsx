@@ -28,22 +28,21 @@ const CourseList = () => {
   const loadCourses = async () => {
     try {
       const response = await execute(courseApi.getAll);
-      console.log('Courses response:', response);
       setCourses(response.data || []);
     } catch (err) {
-      console.error('Error loading courses:', err);
-      showNotification('Dersler yüklenirken hata oluştu', 'error');
+      showNotification('Dersler yüklenirken bir hata oluştu.', 'error');
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Bu dersi silmek istediğinizden emin misiniz?')) {
+    const courseToDelete = courses.find(c => c.id === id);
+    if (window.confirm(`${courseToDelete.courseName} dersini silmek istediğinizden emin misiniz?`)) {
       try {
         await execute(courseApi.delete, id);
-        showNotification('Ders başarıyla silindi');
+        showNotification(`${courseToDelete.courseName} dersi başarıyla silindi.`, 'success');
         loadCourses();
       } catch (err) {
-        showNotification('Silme işlemi başarısız oldu', 'error');
+        showNotification('Ders silinirken bir hata oluştu.', 'error');
       }
     }
   };

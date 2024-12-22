@@ -14,7 +14,8 @@ import {
   Grid,
   Divider,
   IconButton,
-  InputAdornment
+  InputAdornment,
+  Snackbar
 } from '@mui/material';
 import {
   Save as SaveIcon,
@@ -55,7 +56,7 @@ const StudentForm = () => {
       const { password, ...studentData } = response.data;
       setFormData(studentData);
     } catch (err) {
-      showNotification('Öğrenci bilgileri yüklenemedi', 'error');
+      showNotification('Öğrenci bilgileri yüklenemedi. Lütfen daha sonra tekrar deneyin.', 'error');
       navigate('/students');
     }
   };
@@ -101,20 +102,24 @@ const StudentForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      showNotification('Lütfen tüm zorunlu alanları doldurun.', 'warning');
+      return;
+    }
 
     try {
       if (id) {
         const { password, ...updateData } = formData;
         await execute(studentApi.update, id, updateData);
-        showNotification('Öğrenci başarıyla güncellendi');
+        showNotification(`${formData.firstName} ${formData.lastName} başarıyla güncellendi.`, 'success');
       } else {
         await execute(studentApi.create, formData);
-        showNotification('Öğrenci başarıyla oluşturuldu');
+        showNotification(`${formData.firstName} ${formData.lastName} başarıyla oluşturuldu.`, 'success');
       }
       navigate('/students');
     } catch (err) {
-      showNotification('İşlem başarısız oldu', 'error');
+      const errorMessage = err.response?.data?.message || 'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.';
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -128,6 +133,12 @@ const StudentForm = () => {
             onClick={(e) => {
               e.preventDefault();
               navigate('/students');
+            }}
+            sx={{ 
+              textDecoration: 'none',
+              '&:hover': {
+                textDecoration: 'underline'
+              }
             }}
           >
             Öğrenciler
@@ -146,7 +157,16 @@ const StudentForm = () => {
         <Divider sx={{ my: 3 }} />
 
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 3,
+              '& .MuiAlert-message': {
+                fontSize: '0.95rem'
+              }
+            }}
+            onClose={() => {/* Add error clearing logic if needed */}}
+          >
             {error}
           </Alert>
         )}
@@ -163,6 +183,7 @@ const StudentForm = () => {
                 error={!!formErrors.firstName}
                 helperText={formErrors.firstName}
                 required
+                variant="outlined"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -175,6 +196,7 @@ const StudentForm = () => {
                 error={!!formErrors.lastName}
                 helperText={formErrors.lastName}
                 required
+                variant="outlined"
               />
             </Grid>
             <Grid item xs={12}>
@@ -188,6 +210,7 @@ const StudentForm = () => {
                 error={!!formErrors.email}
                 helperText={formErrors.email}
                 required
+                variant="outlined"
               />
             </Grid>
             {!id && (
@@ -202,6 +225,7 @@ const StudentForm = () => {
                   error={!!formErrors.password}
                   helperText={formErrors.password}
                   required
+                  variant="outlined"
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -227,6 +251,7 @@ const StudentForm = () => {
                 error={!!formErrors.major}
                 helperText={formErrors.major}
                 required
+                variant="outlined"
               />
             </Grid>
           </Grid>
@@ -237,6 +262,11 @@ const StudentForm = () => {
               variant="outlined"
               startIcon={<CancelIcon />}
               onClick={() => navigate('/students')}
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'error.lighter',
+                }
+              }}
             >
               İptal
             </Button>
@@ -245,6 +275,12 @@ const StudentForm = () => {
               variant="contained"
               startIcon={loading ? null : <SaveIcon />}
               disabled={loading}
+              sx={{
+                minWidth: 120,
+                '&.Mui-disabled': {
+                  backgroundColor: 'action.disabledBackground',
+                }
+              }}
             >
               {loading ? (
                 <>

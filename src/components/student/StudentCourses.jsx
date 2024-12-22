@@ -33,31 +33,29 @@ const StudentCourses = ({ student, onClose, onUpdate }) => {
       const response = await callApi(courseApi.getAll);
       setAvailableCourses(response.data);
     } catch (err) {
-      console.error('Error fetching courses:', err);
+      showNotification('Ders listesi yüklenirken bir hata oluştu.', 'error', 4000);
     }
   };
-
-  useEffect(() => {
-    fetchCourses();
-  }, []);
 
   const handleEnroll = async (courseId) => {
     try {
       await callApi(studentApi.enrollCourse, student.studentId, courseId);
-      showNotification('Successfully enrolled in course');
+      const course = availableCourses.find(c => c.courseId === courseId);
+      showNotification(`${course.courseName} dersine başarıyla kaydolundu.`, 'success');
       onUpdate();
     } catch (err) {
-      showNotification('Error enrolling in course', 'error');
+      showNotification('Ders kaydı sırasında bir hata oluştu.', 'error', 4000);
     }
   };
 
   const handleDrop = async (courseId) => {
     try {
       await callApi(studentApi.dropCourse, student.studentId, courseId);
-      showNotification('Successfully dropped course');
+      const course = availableCourses.find(c => c.courseId === courseId);
+      showNotification(`${course.courseName} dersinden başarıyla çıkıldı.`, 'success');
       onUpdate();
     } catch (err) {
-      showNotification('Error dropping course', 'error');
+      showNotification('Dersten çıkış sırasında bir hata oluştu.', 'error', 4000);
     }
   };
 

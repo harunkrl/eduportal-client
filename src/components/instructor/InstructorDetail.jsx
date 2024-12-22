@@ -54,7 +54,7 @@ const InstructorDetails = () => {
       const response = await execute(instructorApi.getById, id);
       setInstructor(response.data);
     } catch (err) {
-      showNotification('Akademisyen bilgileri yüklenemedi', 'error');
+      showNotification('Akademisyen bilgileri yüklenirken bir hata oluştu.', 'error', 4000);
       navigate('/instructors');
     }
   };
@@ -64,7 +64,7 @@ const InstructorDetails = () => {
       const response = await execute(instructorApi.getCourses, id);
       setCourses(response.data || []);
     } catch (err) {
-      showNotification('Ders listesi yüklenemedi', 'error');
+      showNotification('Ders listesi yüklenirken bir hata oluştu.', 'error', 4000);
     }
   };
 

@@ -54,7 +54,7 @@ const CourseDetails = () => {
       const response = await execute(courseApi.getById, id);
       setCourse(response.data);
     } catch (err) {
-      showNotification('Ders bilgileri yüklenemedi', 'error');
+      showNotification('Ders bilgileri yüklenirken bir hata oluştu. Lütfen tekrar deneyin.', 'error');
       navigate('/courses');
     }
   };
@@ -64,18 +64,19 @@ const CourseDetails = () => {
       const response = await execute(courseApi.getStudents, id);
       setStudents(response.data || []);
     } catch (err) {
-      showNotification('Öğrenci listesi yüklenemedi', 'error');
+      showNotification('Öğrenci listesi yüklenirken bir hata oluştu.', 'error');
     }
   };
 
   const handleRemoveStudent = async (studentId) => {
-    if (window.confirm('Bu öğrenciyi dersten çıkarmak istediğinizden emin misiniz?')) {
+    const student = students.find(s => s.id === studentId);
+    if (window.confirm(`${student.firstName} ${student.lastName} isimli öğrenciyi dersten çıkarmak istediğinizden emin misiniz?`)) {
       try {
         await execute(courseApi.removeStudent, id, studentId);
-        showNotification('Öğrenci dersten çıkarıldı');
+        showNotification(`${student.firstName} ${student.lastName} dersten başarıyla çıkarıldı.`, 'success');
         loadStudents();
       } catch (err) {
-        showNotification('İşlem başarısız oldu', 'error');
+        showNotification('Öğrenci dersten çıkarılırken bir hata oluştu.', 'error');
       }
     }
   };

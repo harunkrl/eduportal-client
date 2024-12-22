@@ -1,23 +1,56 @@
 import React, { createContext, useContext, useState } from 'react';
+import { Snackbar, Alert } from '@mui/material';
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  const [notification, setNotification] = useState(null);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    type: 'success'
+  });
 
   const showNotification = (message, type = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000);
+    setNotification({
+      open: true,
+      message,
+      type
+    });
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setNotification(prev => ({
+      ...prev,
+      open: false
+    }));
   };
 
   return (
-    <NotificationContext.Provider value={{ notification, showNotification }}>
+    <NotificationContext.Provider value={{ showNotification }}>
       {children}
-      {notification && (
-        <div className={`notification ${notification.type}`}>
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={notification.type}
+          variant="filled"
+          sx={{
+            width: '100%',
+            '& .MuiAlert-message': {
+              fontSize: '0.95rem'
+            }
+          }}
+        >
           {notification.message}
-        </div>
-      )}
+        </Alert>
+      </Snackbar>
     </NotificationContext.Provider>
   );
 };

@@ -48,7 +48,7 @@ const CourseForm = () => {
       const response = await execute(instructorApi.getAll);
       setInstructors(response.data || []);
     } catch (err) {
-      showNotification('Akademisyenler yüklenemedi', 'error');
+      showNotification('Akademisyen listesi yüklenirken bir hata oluştu.', 'error');
     }
   };
 
@@ -62,7 +62,7 @@ const CourseForm = () => {
         instructorId: course.instructor.id
       });
     } catch (err) {
-      showNotification('Ders bilgileri yüklenemedi', 'error');
+      showNotification('Ders bilgileri yüklenirken bir hata oluştu.', 'error');
       navigate('/courses');
     }
   };
@@ -101,19 +101,22 @@ const CourseForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      showNotification('Lütfen tüm zorunlu alanları doldurun.', 'warning');
+      return;
+    }
 
     try {
       if (id) {
         await execute(courseApi.update, id, formData);
-        showNotification('Ders başarıyla güncellendi');
+        showNotification(`${formData.courseName} dersi başarıyla güncellendi.`, 'success');
       } else {
         await execute(courseApi.create, formData);
-        showNotification('Ders başarıyla oluşturuldu');
+        showNotification(`${formData.courseName} dersi başarıyla oluşturuldu.`, 'success');
       }
       navigate('/courses');
     } catch (err) {
-      showNotification('İşlem başarısız oldu', 'error');
+      showNotification('İşlem sırasında bir hata oluştu.', 'error');
     }
   };
 
